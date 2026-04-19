@@ -27,15 +27,7 @@ jobs:
         run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
 
       - name: Test with coverage
-        run: mkdir -p TestResults
-          dotnet test \
-            --no-build \
-            --logger "trx;LogFileName=TestResults/test_results.trx" \
-            /p:CollectCoverage=true \
-            /p:CoverletOutput=TestResults/coverage.cobertura.xml \
-            /p:CoverletOutputFormat=cobertura \
-            /p:Threshold=90 \
-            /p:ThresholdType=line
+        run: dotnet test --no-build --logger "trx;LogFileName=test_results.trx" /p:CollectCoverage=true /p:CoverletOutput=coverage.cobertura.xml /p:CoverletOutputFormat=cobertura /p:Threshold=90 /p:ThresholdType=line
 
       - name: Coverage comment
         uses: bibipkins/dotnet-test-reporter@v1.6.1
@@ -43,6 +35,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           comment-title: 'Unit Test Results'
-          results-path: ./TestResults/*.trx
-          coverage-path: ./TestResults/coverage.xml
+          results-path: '**/*.trx'
+          coverage-path: '**/coverage.cobertura.xml'
+          coverage-type: cobertura
           coverage-threshold: 90
