@@ -31,10 +31,10 @@ jobs:
 
       - name: Coverage comment
         uses: bibipkins/dotnet-test-reporter@v1.6.1
-        if: hashFiles('SpaceBattle.Tests/coverage.cobertura.xml') != ''
+        if: hashFiles('./TestResults/*.trx') != ''
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          results-path: '**/*.trx'
-          coverage-path: '**/coverage.cobertura.xml'
-          coverage-type: cobertura
+          comment-title: 'Unit Test Results'
+          results-path: ./TestResults/*.trx
+          coverage-path: ./TestResults/coverage.xml
           coverage-threshold: 90
