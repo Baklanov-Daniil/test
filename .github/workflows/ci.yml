@@ -36,5 +36,4 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           coverage-path: coverage.cobertura.xml
           coverage-type: cobertura
-          coverage-threshold: 90
           coverage-threshold: 80
