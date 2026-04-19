@@ -34,7 +34,7 @@ jobs:
         if: hashFiles('coverage.cobertura.xml') != ''
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          comment-title: 'Unit Test Results'
-          results-path: ./TestResults/*.trx
-          coverage-path: ./TestResults/coverage.xml
+          coverage-path: coverage.cobertura.xml
+          coverage-type: cobertura
+          coverage-threshold: 90
           coverage-threshold: 80
