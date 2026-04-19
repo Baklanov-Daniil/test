@@ -27,7 +27,15 @@ jobs:
         run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
 
       - name: Test with coverage
-        run: dotnet test --no-build /p:CollectCoverage=true /p:CoverletOutput=coverage.cobertura.xml /p:CoverletOutputFormat=cobertura /p:Threshold=90 /p:ThresholdType=line /p:ThresholdStat=total
+        run: mkdir -p TestResults
+          dotnet test \
+            --no-build \
+            --logger "trx;LogFileName=TestResults/test_results.trx" \
+            /p:CollectCoverage=true \
+            /p:CoverletOutput=TestResults/coverage.cobertura.xml \
+            /p:CoverletOutputFormat=cobertura \
+            /p:Threshold=90 \
+            /p:ThresholdType=line
 
       - name: Coverage comment
         uses: bibipkins/dotnet-test-reporter@v1.6.1
