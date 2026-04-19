@@ -34,6 +34,7 @@ jobs:
         if: hashFiles('SpaceBattle.Tests/coverage.cobertura.xml') != ''
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          coverage-path: SpaceBattle.Tests/coverage.cobertura.xml
+          results-path: '**/*.trx'
+          coverage-path: '**/coverage.cobertura.xml'
           coverage-type: cobertura
-          coverage-threshold: 80
+          coverage-threshold: 90
