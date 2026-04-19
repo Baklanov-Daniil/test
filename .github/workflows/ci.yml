@@ -6,63 +6,67 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
-      contents: read
-    
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: 8.0.x
 
       - name: Restore dependencies
         run: dotnet restore
 
+      - name: Checkstyle
+        run: dotnet format --verify-no-changes
+
       - name: Build
-        run: dotnet build --no-restore
+        run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
 
-      - name: Run tests with coverage
-        run: |
-          dotnet test \
-            --no-build \
-            --logger "trx;LogFileName=test_results.trx" \
-            /p:CollectCoverage=true \
-            /p:CoverletOutput=coverage.cobertura.xml \
-            /p:CoverletOutputFormat=cobertura
+      - name: Test with coverage
+        run: dotnet test --no-build /p:CollectCoverage=true /p:CoverletOutput=coverage.cobertura.xml /p:CoverletOutputFormat=cobertura /p:Threshold=90 /p:ThresholdType=line /p:ThresholdStat=total
 
-      - name: 🔍 DIAGNOSTIC - Find all files
-        run: |
-          echo "=== Current directory ==="
-          pwd
-          echo ""
-          echo "=== All files in current directory ==="
-          ls -la
-          echo ""
-          echo "=== Find all .trx files ==="
-          find . -name "*.trx" -type f
-          echo ""
-          echo "=== Find all coverage files ==="
-          find . -name "*.cobertura.xml" -type f
-          echo ""
-          echo "=== Find all xml files ==="
-          find . -name "*.xml" -type f | head -20
-          echo ""
-          echo "=== TestResults directory content ==="
-          ls -la TestResults/ 2>/dev/null || echo "TestResults directory not found"
-          echo ""
-          echo "=== SpaceBattle.Tests directory ==="
-          ls -la SpaceBattle.Tests/ | grep -E "(cobertura|trx|xml)" || echo "No matching files"
-
-      - name: 📊 Coverage comment
-        uses: bibipkins/dotnet-test-reporter@v1.6.1
+      - name: Coverage comment
+        uses: bibipkins/dotnet-test-reporter@v1.0.0
+        if: hashFiles('coverage.cobertura.xml') != ''
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          results-path: '**/*.trx'
-          coverage-path: '**/coverage.cobertura.xml'
+          coverage-path: coverage.cobertura.xml
           coverage-type: cobertura
           coverage-threshold: 90
-          comment-title: 'Test Results & Coverage'
-          show-test-output: true
+name: Main CI-pipeline
+
+on:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Checkstyle
+        run: dotnet format --verify-no-changes
+
+      - name: Build
+        run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
+
+      - name: Test with coverage
+        run: dotnet test --no-build /p:CollectCoverage=true /p:CoverletOutput=coverage.cobertura.xml /p:CoverletOutputFormat=cobertura /p:Threshold=90 /p:ThresholdType=line /p:ThresholdStat=total
+
+      - name: Coverage comment
+        uses: bibipkins/dotnet-test-reporter@v1.0.0
+        if: hashFiles('coverage.cobertura.xml') != ''
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          coverage-path: coverage.cobertura.xml
+          coverage-type: cobertura
+          coverage-threshold: 90
